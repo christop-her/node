@@ -14,12 +14,16 @@ const io = socketIo(server);
 
 // PostgreSQL connection pool
 const pool = new Pool({
-  user: 'root', // Replace with your local PostgreSQL username
-  host: 'oregon-postgres.render.com', // Use localhost for local development
-  database: 'test_yvhj', // Replace with your local PostgreSQL database name
-  password: 'pB8U8bTRKMDUaBs600vj774gcSHvTFoE', // Replace with your local PostgreSQL password
-  port: 5432, // Default PostgreSQL port
+  user: 'root', // Replace with your PostgreSQL username
+  host: 'oregon-postgres.render.com', // PostgreSQL host on Render
+  database: 'test_yvhj', // Replace with your PostgreSQL database name
+  password: 'pB8U8bTRKMDUaBs600vj774gcSHvTFoE', // Replace with your PostgreSQL password
+  port: 5432, // PostgreSQL port
+  ssl: {
+    rejectUnauthorized: false, // This allows SSL without verifying the certificate
+  }
 });
+
 
 // Store socket connections
 const userSockets = {}; // Map to store user email and socket ID
