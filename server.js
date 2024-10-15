@@ -14,9 +14,9 @@ const io = socketIo(server);
 
 // PostgreSQL connection pool
 const pool = new Pool({
-  user: 'postgres', // Replace with your local PostgreSQL username
-  host: 'localhost', // Use localhost for local development
-  database: 'healthdb', // Replace with your local PostgreSQL database name
+  user: 'root', // Replace with your local PostgreSQL username
+  host: 'oregon-postgres.render.com', // Use localhost for local development
+  database: 'test_yvhj', // Replace with your local PostgreSQL database name
   password: 'pB8U8bTRKMDUaBs600vj774gcSHvTFoE', // Replace with your local PostgreSQL password
   port: 5432, // Default PostgreSQL port
 });
