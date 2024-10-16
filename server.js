@@ -64,11 +64,9 @@ io.on('connection', (socket) => {
       // Emit the message to the intended recipient
       if (userSockets[doctoremail]) {
         socket.to(userSockets[doctoremail]).emit('chat message', data); // Send to doctor
-        socket.to(userSockets[email]).emit('chat message', data); // Send back to patient (optional)
       }
       if (userSockets[email]) {
         socket.to(userSockets[email]).emit('chat message', data); // Send back to patient (optional)
-        socket.to(userSockets[doctoremail]).emit('chat message', data); // Send to doctor
       }
     } catch (err) {
       console.error('Error inserting message into database:', err);
