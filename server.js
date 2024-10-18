@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
   });
 
 
-  socket.on('reload_register', async (data) => {
+  socket.on('reload_message', async (data) => {
     let messageData;
 
     // Parse message data
@@ -98,11 +98,11 @@ io.on('connection', (socket) => {
 
       // Emit the message to the intended recipient
       if (userSockets[doctoremail]) {
-        socket.to(userSockets[doctoremail]).emit('reload_register', data); // Send to doctor
+        socket.to(userSockets[doctoremail]).emit('reload message', data); // Send to doctor
       }
       
       if (userSockets[email]) {
-        socket.emit('reload_register', data); // Send back to patient (optional)
+        socket.emit('reload message', data); // Send back to patient (optional)
       }
   });
 
