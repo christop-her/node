@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
   });
 
 
-  socket.on('reload_message', async (data) => {
+  socket.on('reload message', async (data) => {
     let messageData;
 
     // Parse message data
