@@ -8,6 +8,11 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 
+
+app.get('/reload', (req, res)=> {
+  require('./reload')(io, userSockets);
+})
+
 // Create HTTP server and initialize Socket.io
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -36,6 +41,11 @@ io.on('connection', (socket) => {
   socket.on('register', (email) => {
     userSockets[email] = socket.id; // Map email to socket ID
     console.log(`User registered: ${email}`);
+  });
+
+  socket.on('sun_register', (email) => {
+    userSockets[email] = socket.id;
+    console.log(`Userr registered: ${email}`);
   });
 
   // Listen for incoming messages
@@ -85,6 +95,8 @@ io.on('connection', (socket) => {
     }
   });
 });
+
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
