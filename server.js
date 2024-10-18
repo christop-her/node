@@ -8,11 +8,6 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 
-
-app.get('/reload', (req, res)=> {
-  require('./reload')(io, userSockets);
-})
-
 // Create HTTP server and initialize Socket.io
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -43,7 +38,7 @@ io.on('connection', (socket) => {
     console.log(`User registered: ${email}`);
   });
 
-  socket.on('sun_register', (email) => {
+  socket.on('reload_register', (email) => {
     userSockets[email] = socket.id;
     console.log(`Userr registered: ${email}`);
   });
@@ -83,6 +78,34 @@ io.on('connection', (socket) => {
       console.error('Error inserting message into database:', err);
     }
   });
+
+
+  socket.on('reload_register', async (data) => {
+    let messageData;
+
+    // Parse message data
+    try {
+      messageData = JSON.parse(data);
+    } catch (err) {
+      console.error('Error parsing message data:', err);
+      return; // Exit if parsing fails
+    }
+
+    const { mymessage, doctoremail, email } = messageData;
+
+    // Log the received message data to verify
+    console.log('Receivedd message data:', messageData);
+
+      // Emit the message to the intended recipient
+      if (userSockets[doctoremail]) {
+        socket.to(userSockets[doctoremail]).emit('reload_register', data); // Send to doctor
+      }
+      
+      if (userSockets[email]) {
+        socket.emit('reload_register', data); // Send back to patient (optional)
+      }
+  });
+
 
   socket.on('disconnect', () => {
     // Remove user from the map when they disconnect
