@@ -23,7 +23,7 @@ const register = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+const patient_login = async (req, res) => {
   const { email, password } = req.body;
   try {
     // Find user by email
@@ -32,14 +32,20 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // Check password
-    // const validPassword = await bcrypt.compare(password, user.rows[0].password);
-    // if (!validPassword) {
-    //   return res.status(400).json({ message: 'Invalid email or password' });
-    // }
+    // Check password (no hashing)
+    const storedPassword = user.rows[0].password; // Assume this is plain text
+
+    // Compare the plain text password
+    if (password !== storedPassword) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user.rows[0].id, email: user.rows[0].email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { userId: user.rows[0].id, email: user.rows[0].email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
     res.status(200).json({ token });
   } catch (err) {
@@ -47,4 +53,35 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+
+const practitioner_login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    // Find user by email
+    const user = await pool.query('SELECT * FROM practitioner WHERE email = $1', [email]);
+    if (user.rows.length === 0) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    // Check password (no hashing)
+    const storedPassword = user.rows[0].password; // Assume this is plain text
+
+    // Compare the plain text password
+    if (password !== storedPassword) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.rows[0].id, email: user.rows[0].email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.status(200).json({ token });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports = { register, patient_login, practitioner_login };
