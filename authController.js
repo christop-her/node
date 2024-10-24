@@ -1,7 +1,7 @@
 // const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('./db');
-require('.env').config();
+// require('.env').config();
 
 const register = async (req, res) => {
   const { email, password } = req.body;
