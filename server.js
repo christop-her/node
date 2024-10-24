@@ -5,7 +5,7 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { register, login } = require('./authController');
-require('dotenv').config();
+require('.env').config();
 
 // Initialize Express
 const app = express();
