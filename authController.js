@@ -58,7 +58,10 @@ const practitioner_login = async (req, res) => {
   const { email, password } = req.body;
   try {
     // Find user by email
-    const user = await pool.query('SELECT * FROM practitioner WHERE email = $1', [email]);
+    const user = await pool.query(
+      'SELECT * FROM practitioner WHERE email = $1 AND userrole = $2',
+      [email, 'practitioner']
+    );
     if (user.rows.length === 0) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
