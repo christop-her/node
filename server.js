@@ -3,10 +3,14 @@ const http = require('http');
 const socketIo = require('socket.io');
 const { Pool } = require('pg');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const { register, login } = require('./authController');
+require('dotenv').config();
 
 // Initialize Express
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
 
 // Create HTTP server and initialize Socket.io
 const server = http.createServer(app);
@@ -118,6 +122,13 @@ io.on('connection', (socket) => {
     }
   });
 });
+
+
+
+
+
+app.post('/register', register);
+app.post('/login', login);
 
 
 
