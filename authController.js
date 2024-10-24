@@ -33,7 +33,7 @@ const patient_login = async (req, res) => {
     }
 
     // Check password (no hashing)
-    const storedPassword = user.rows[0].password; // Assume this is plain text
+    const storedPassword = user.rows[0].userpassword; // Assume this is plain text
 
     // Compare the plain text password
     if (password !== storedPassword) {
@@ -67,7 +67,7 @@ const practitioner_login = async (req, res) => {
     }
 
     // Check password (no hashing)
-    const storedPassword = user.rows[0].password; // Assume this is plain text
+    const storedPassword = user.rows[0].userpassword; // Assume this is plain text
 
     // Compare the plain text password
     if (password !== storedPassword) {
