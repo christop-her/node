@@ -13,12 +13,12 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Google Sign-In Endpoint
 const googleSignIn = async (req, res) => {
-  const { idToken } = req.body;
+  const { accessToken } = req.body;
 
   try {
     // Verify the Google ID Token
     const ticket = await client.verifyIdToken({
-      idToken,
+      accessToken,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
