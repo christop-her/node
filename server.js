@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { googleSignIn, register, patient_login, practitioner_login } = require('./authController');
+const { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code} = require('./authController');
 // require('.env').config();
 
 // Initialize Express
@@ -20,8 +20,8 @@ const io = socketIo(server);
 const pool = new Pool({
   user: 'root', // Replace with your PostgreSQL username
   host: 'oregon-postgres.render.com', // PostgreSQL host on Render
-  database: 'test_db_fiee', // Replace with your PostgreSQL database name
-  password: 'AnZuajfuL6ggESUYHAyJraPrO2TUuRsy', // Replace with your PostgreSQL password
+  database: 'expire_db', // Replace with your PostgreSQL database name
+  password: 'NIY1E9RRsthFXggmw5qvsYA266GIyIed', // Replace with your PostgreSQL password
   port: 5432, // PostgreSQL port
   ssl: {
     rejectUnauthorized: false, // This allows SSL without verifying the certificate
@@ -130,6 +130,16 @@ app.post('/googleSignIn', googleSignIn);
 app.post('/register', register);
 app.post('/patient_login', patient_login);
 app.post('/practitioner_login', practitioner_login);
+app.post('/forgot_password', forgot_password);
+app.post('/verify_reset_code', verify_reset_code);
+
+
+
+
+
+
+
+
 
 
 

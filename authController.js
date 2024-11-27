@@ -1,5 +1,8 @@
 // const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require("crypto");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 const pooll = require('./db');
 // require('.env').config();
 
@@ -144,7 +147,89 @@ const practitioner_login = async (req, res) => {
 
 
 
+const forgot_password = async (req, res) => {
+  try {
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "wilfredc685@gmail.com",
+        pass: "wilfred-124$",
+      },
+    });
+
+    const { email } = req.body;
+
+    // Check if the user exists
+    const result = await pooll.query('SELECT * FROM patient WHERE email = $1', [email]);
+    if (result.rows.length === 0) return res.status(404).send("User not found.");
+
+    const user = result.rows[0];
+
+    // Generate a unique 6-digit code
+    const resetCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+
+    // Save the reset code and its expiry in the mock database
+    user.resetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+    user.resetCodeExpiry = Date.now() + 15 * 60 * 1000; // Code expires in 15 minutes
+
+    // Send the code via email
+    await transporter.sendMail({
+      to: email,
+      subject: "Password Reset Request",
+      text: `Your password reset code is: ${resetCode}\nThis code is valid for 15 minutes.`,
+    });
+
+    res.send("Password reset code sent to your email.");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while sending the reset code.");
+  }
+};
+
+
+
+const verify_reset_code = async (req, res) => {
+  try {
+    const { email, resetCode } = req.body;
+
+    // Validate input
+    if (!email || !resetCode) {
+      return res.status(400).send("Email and reset code are required.");
+    }
+
+    // Check if the user exists and retrieve reset code details
+    const result = await pooll.query(
+      "SELECT reset_code, reset_code_expiry FROM patient WHERE email = $1",
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("User not found.");
+    }
+
+    const { reset_code: storedHashedCode, reset_code_expiry: codeExpiry } = result.rows[0];
+
+    // Hash the provided reset code to compare with the stored hashed code
+    const hashedCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+
+    // Validate the reset code and check expiry
+    if (storedHashedCode !== hashedCode || new Date() > new Date(codeExpiry)) {
+      return res.status(400).send("Invalid or expired reset code.");
+    }
+
+    // Reset code is valid
+    res.send("Reset code verified. You can now reset your password.");
+  } catch (error) {
+    console.error("Error in verify_reset_code:", error);
+    res.status(500).send("An error occurred while verifying the reset code.");
+  }
+};
+
+
+
+
 // Export the Google Sign-In function
-module.exports = { googleSignIn, register, patient_login, practitioner_login };
+module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code};
 
 // module.exports = { register, patient_login, practitioner_login };
