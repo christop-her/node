@@ -146,17 +146,16 @@ const practitioner_login = async (req, res) => {
 };
 
 
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "wilfredc685@gmail.com",
+    pass: "wilfred-124$",
+  },
+});
 
 const forgot_password = async (req, res) => {
   try {
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "wilfredc685@gmail.com",
-        pass: "wilfred-124$",
-      },
-    });
 
     const { email } = req.body;
 
