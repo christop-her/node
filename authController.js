@@ -233,6 +233,6 @@ const verify_reset_code = async (req, res) => {
 
 
 // Export the Google Sign-In function
-module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code};
+module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code };
 
 // module.exports = { register, patient_login, practitioner_login };
