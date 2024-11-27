@@ -1,7 +1,6 @@
 // const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require("crypto");
-const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const pooll = require('./db');
 // require('.env').config();
@@ -176,12 +175,12 @@ const forgot_password = async (req, res) => {
     user.resetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
     user.resetCodeExpiry = Date.now() + 15 * 60 * 1000; // Code expires in 15 minutes
 
-    // Send the code via email
-    await transporter.sendMail({
-      to: email,
-      subject: "Password Reset Request",
-      text: `Your password reset code is: ${resetCode}\nThis code is valid for 15 minutes.`,
-    });
+    // // Send the code via email
+    // await transporter.sendMail({
+    //   to: email,
+    //   subject: "Password Reset Request",
+    //   text: `Your password reset code is: ${resetCode}\nThis code is valid for 15 minutes.`,
+    // });
 
     res.send("Password reset code sent to your email.");
   } catch (error) {

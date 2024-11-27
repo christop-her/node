@@ -133,16 +133,6 @@ app.post('/practitioner_login', practitioner_login);
 app.post('/forgot_password', forgot_password);
 app.post('/verify_reset_code', verify_reset_code);
 
-
-
-
-
-
-
-
-
-
-
 // Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
