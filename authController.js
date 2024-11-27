@@ -161,12 +161,15 @@ const forgot_password = async (req, res) => {
     const user = result.rows[0];
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // true for 465, false for other ports
       auth: {
         user: "wilfredc685@gmail.com",
-        pass: "wilfred-124$",
+        pass: "Wilfred-124$", // Replace with App Password
       },
     });
+    
 
     // Generate a unique 6-digit code
     const resetCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
@@ -180,8 +183,11 @@ const forgot_password = async (req, res) => {
       to: email,
       subject: "Password Reset Request",
       text: `Your password reset code is: ${resetCode}\nThis code is valid for 15 minutes.`,
+    }).catch(err => {
+      console.error("Error sending email:", err);
+      throw err; // Rethrow to trigger the catch block
     });
-
+    
     res.send("Password reset code sent to your email.");
   } catch (error) {
     console.error(error);
