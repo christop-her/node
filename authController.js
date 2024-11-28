@@ -166,7 +166,7 @@ const forgot_password = async (req, res) => {
       secure: true, // true for 465, false for other ports
       auth: {
         user: "wilfredc685@gmail.com",
-        pass: "Wilfred-124$", // Replace with App Password
+        pass: "qdft qyhi wzbr qbig", // Replace with App Password
       },
     });
     
