@@ -178,6 +178,12 @@ const forgot_password = async (req, res) => {
     user.resetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
     user.resetCodeExpiry = Date.now() + 15 * 60 * 1000; // Code expires in 15 minutes
 
+     // Update the database with reset code and expiry
+     await pooll.query(
+      "UPDATE patient SET reset_code = $1, reset_code_expiry = $2 WHERE email = $3",
+      [hashedResetCode, resetCodeExpiry, email]
+    );
+
     // Send the code via email
     await transporter.sendMail({
       to: email,
