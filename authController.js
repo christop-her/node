@@ -175,8 +175,16 @@ const forgot_password = async (req, res) => {
     const resetCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
 
     // Save the reset code and its expiry in the mock database
-    user.resetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
-    user.resetCodeExpiry = Date.now() + 15 * 60 * 1000; // Code expires in 15 minutes
+    // user.resetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+    // user.resetCodeExpiry = Date.now() + 15 * 60 * 1000; // Code expires in 15 minutes
+    const hashedResetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+    const resetCodeExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+     // Update the database with reset code and expiry
+     await pooll.query(
+      "UPDATE patient SET reset_code = $1, reset_code_expiry = $2 WHERE email = $3",
+      [hashedResetCode, resetCodeExpiry, email]
+    );
 
     // Send the code via email
     await transporter.sendMail({
@@ -190,11 +198,7 @@ const forgot_password = async (req, res) => {
     
     res.send("Password reset code sent to your email.");
 
-     // Update the database with reset code and expiry
-     await pooll.query(
-      "UPDATE patient SET reset_code = $1, reset_code_expiry = $2 WHERE email = $3",
-      [hashedResetCode, resetCodeExpiry, email]
-    );
+    
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while sending the reset code.");
