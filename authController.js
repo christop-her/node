@@ -325,6 +325,33 @@ const submit_datetime = async (req, res) => {
   }
 };
 
+const select_datetime = async (req, res) => {
+      try {
+      const { email } = req.body;
+    
+      const response = {};
+    
+        // Query the database for journals by email, ordered by id in descending order
+        const result = await pooll.query(
+          "SELECT * FROM schedule WHERE email = $1",
+          [email]
+        );
+    
+        if (result.rows.length > 0) {
+          response.data = result.rows;
+          response.message = "Data retrieved successfully.";
+        } else {
+          response.message = "No journal entries found.";
+        }
+    
+        res.status(200).json(response);
+      } catch (error) {
+        console.error("Error fetching journal data:", error);
+        res.status(500).json({ message: "An error occurred while fetching the data." });
+      }
+    };
+    
+
 
 // const pricing = async (req, res) => {
 //   try {
@@ -354,6 +381,6 @@ const submit_datetime = async (req, res) => {
 
 
 // Export the Google Sign-In function
-module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime };
+module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime, select_datetime };
 
 // module.exports = { register, patient_login, practitioner_login };
