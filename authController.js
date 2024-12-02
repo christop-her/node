@@ -255,7 +255,7 @@ const reset_password = async (req, res) => {
       }
 
      // Update the database
-     const result = await pool.query(
+     const result = await pooll.query(
       "UPDATE patient SET userpassword = $1 WHERE email = $2",
       [userpassword, email]
     );
