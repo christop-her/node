@@ -273,7 +273,70 @@ const reset_password = async (req, res) => {
 };
 
 
+
+const submit_datetime = async (req, res) => {
+  const { dateTimeSelections } = req.body;
+
+  if (!Array.isArray(dateTimeSelections)) {
+    return res.status(400).json({ message: 'Invalid data format' });
+  }
+
+  const client = await pooll.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Inserting each date and time pair
+    for (const selection of dateTimeSelections) {
+      const { date, times } = selection;
+
+      for (const time of times) {
+        await client.query(
+          `INSERT INTO schedule (selected_date, selected_time) VALUES ($1, $2)`,
+          [date, time]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+    res.status(200).json({ message: 'Date and time selections saved successfully' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error inserting data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  } finally {
+    client.release();
+  }
+}
+
+
+// const pricing = async (req, res) => {
+//   try {
+//   const { email } = req.body;
+
+//   const response = {};
+
+//     // Query the database for journals by email, ordered by id in descending order
+//     const result = await pool.query(
+//       "SELECT * FROM journal WHERE email = $1 ORDER BY id DESC",
+//       [email]
+//     );
+
+//     if (result.rows.length > 0) {
+//       response.data = result.rows;
+//       response.message = "Data retrieved successfully.";
+//     } else {
+//       response.message = "No journal entries found.";
+//     }
+
+//     res.status(200).json(response);
+//   } catch (error) {
+//     console.error("Error fetching journal data:", error);
+//     res.status(500).json({ message: "An error occurred while fetching the data." });
+//   }
+// };
+
+
 // Export the Google Sign-In function
-module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password };
+module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime };
 
 // module.exports = { register, patient_login, practitioner_login };
