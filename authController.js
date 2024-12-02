@@ -354,6 +354,6 @@ const reset_password = async (req, res) => {
 
 
 // Export the Google Sign-In function
-module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime };
+module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password };
 
 // module.exports = { register, patient_login, practitioner_login };
