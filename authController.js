@@ -244,10 +244,36 @@ const verify_reset_code = async (req, res) => {
   }
 };
 
+const reset_password = async (req, res) => {
+  try {
 
+    const { userpassword, email } = req.body;
+
+       // Validate input
+       if (!userpassword || !email) {
+        return res.status(400).send("Email and password are required.");
+      }
+
+     // Update the database
+     const result = await pool.query(
+      "UPDATE patient SET userpassword = $1 WHERE email = $2",
+      [userpassword, email]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send("User with the provided email not found.");
+    }
+
+    // Respond with success
+    res.status(200).send("Password reset successfully.");
+  } catch (error) {
+    console.error("Error resetting password:", error.message);
+    res.status(500).send("An error occurred while resetting the password.");
+  }
+};
 
 
 // Export the Google Sign-In function
-module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code };
+module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password };
 
 // module.exports = { register, patient_login, practitioner_login };
