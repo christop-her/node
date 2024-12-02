@@ -274,56 +274,56 @@ const reset_password = async (req, res) => {
 
 
 
-const submit_datetime = async (req, res) => {
-  const { email, dateTimeSelections } = req.body;
+// const submit_datetime = async (req, res) => {
+//   const { email, dateTimeSelections } = req.body;
 
-  if (!email || !Array.isArray(dateTimeSelections)) {
-    return res.status(400).json({ message: 'Invalid data format' });
-  }
+//   if (!email || !Array.isArray(dateTimeSelections)) {
+//     return res.status(400).json({ message: 'Invalid data format' });
+//   }
 
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
+//   const client = await pool.connect();
+//   try {
+//     await client.query('BEGIN');
 
-    // Check if email exists
-    const emailExistsQuery = `
-      SELECT COUNT(*) FROM schedule WHERE email = $1;
-    `;
-    const emailExistsResult = await client.query(emailExistsQuery, [email]);
+//     // Check if email exists
+//     const emailExistsQuery = `
+//       SELECT COUNT(*) FROM schedule WHERE email = $1;
+//     `;
+//     const emailExistsResult = await client.query(emailExistsQuery, [email]);
 
-    const emailExists = parseInt(emailExistsResult.rows[0].count) > 0;
+//     const emailExists = parseInt(emailExistsResult.rows[0].count) > 0;
 
-    if (emailExists) {
-      // Delete existing records for the email
-      await client.query(`DELETE FROM schedule WHERE email = $1`, [email]);
-    }
+//     if (emailExists) {
+//       // Delete existing records for the email
+//       await client.query(`DELETE FROM schedule WHERE email = $1`, [email]);
+//     }
 
-    // Insert new date and time pairs for the email
-    for (const selection of dateTimeSelections) {
-      const { date, times } = selection;
+//     // Insert new date and time pairs for the email
+//     for (const selection of dateTimeSelections) {
+//       const { date, times } = selection;
 
-      for (const time of times) {
-        await client.query(
-          `INSERT INTO schedule (selected_date, selected_time, email) VALUES ($1, $2, $3)`,
-          [date, time, email]
-        );
-      }
-    }
+//       for (const time of times) {
+//         await client.query(
+//           `INSERT INTO schedule (selected_date, selected_time, email) VALUES ($1, $2, $3)`,
+//           [date, time, email]
+//         );
+//       }
+//     }
 
-    await client.query('COMMIT');
-    res.status(200).json({
-      message: emailExists
-        ? 'Date and time selections updated successfully'
-        : 'Date and time selections inserted successfully',
-    });
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error('Error processing data:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  } finally {
-    client.release();
-  }
-};
+//     await client.query('COMMIT');
+//     res.status(200).json({
+//       message: emailExists
+//         ? 'Date and time selections updated successfully'
+//         : 'Date and time selections inserted successfully',
+//     });
+//   } catch (error) {
+//     await client.query('ROLLBACK');
+//     console.error('Error processing data:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   } finally {
+//     client.release();
+//   }
+// };
 
 
 // const pricing = async (req, res) => {
