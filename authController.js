@@ -150,12 +150,12 @@ const practitioner_login = async (req, res) => {
 const forgot_password = async (req, res) => {
   try {
 
-    const { email } = req.body;
+    const { email, person } = req.body;
 
 
-
-    // Check if the user exists
-    const result = await pooll.query('SELECT * FROM patient WHERE email = $1', [email]);
+if (person === 'patient'){
+try {
+  const result = await pooll.query('SELECT * FROM patient WHERE email = $1', [email]);
     if (result.rows.length === 0) return res.status(404).send("User not found.");
 
     const user = result.rows[0];
@@ -197,6 +197,108 @@ const forgot_password = async (req, res) => {
     });
     
     res.send("Password reset code sent to your email.");
+
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while sending the reset code.");
+  }
+}
+else if(person === 'practitioner'){
+  try {
+    const result = await pooll.query('SELECT * FROM practitioner WHERE email = $1', [email]);
+    if (result.rows.length === 0) return res.status(404).send("User not found.");
+
+    const user = result.rows[0];
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // true for 465, false for other ports
+      auth: {
+        user: "wilfredc685@gmail.com",
+        pass: "qdft qyhi wzbr qbig", // Replace with App Password
+      },
+    });
+    
+
+    // Generate a unique 6-digit code
+    const resetCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+
+    // Save the reset code and its expiry in the mock database
+    // user.resetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+    // user.resetCodeExpiry = Date.now() + 15 * 60 * 1000; // Code expires in 15 minutes
+    const hashedResetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+    const resetCodeExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+     // Update the database with reset code and expiry
+     await pooll.query(
+      "UPDATE practitioner SET reset_code = $1, reset_code_expiry = $2 WHERE email = $3",
+      [hashedResetCode, resetCodeExpiry, email]
+    );
+
+    // Send the code via email
+    await transporter.sendMail({
+      to: email,
+      subject: "Password Reset Request",
+      text: `Your password reset code is: ${resetCode}\nThis code is valid for 15 minutes.`,
+    }).catch(err => {
+      console.error("Error sending email:", err);
+      throw err; // Rethrow to trigger the catch block
+    });
+    
+    res.send("Password reset code sent to your email.");
+
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while sending the reset code.");
+  }
+
+}
+    // Check if the user exists
+    // const result = await pooll.query('SELECT * FROM patient WHERE email = $1', [email]);
+    // if (result.rows.length === 0) return res.status(404).send("User not found.");
+
+    // const user = result.rows[0];
+
+    // const transporter = nodemailer.createTransport({
+    //   host: "smtp.gmail.com",
+    //   port: 465,
+    //   secure: true, // true for 465, false for other ports
+    //   auth: {
+    //     user: "wilfredc685@gmail.com",
+    //     pass: "qdft qyhi wzbr qbig", // Replace with App Password
+    //   },
+    // });
+    
+
+    // // Generate a unique 6-digit code
+    // const resetCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+
+    // // Save the reset code and its expiry in the mock database
+    // // user.resetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+    // // user.resetCodeExpiry = Date.now() + 15 * 60 * 1000; // Code expires in 15 minutes
+    // const hashedResetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+    // const resetCodeExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+    //  // Update the database with reset code and expiry
+    //  await pooll.query(
+    //   "UPDATE patient SET reset_code = $1, reset_code_expiry = $2 WHERE email = $3",
+    //   [hashedResetCode, resetCodeExpiry, email]
+    // );
+
+    // // Send the code via email
+    // await transporter.sendMail({
+    //   to: email,
+    //   subject: "Password Reset Request",
+    //   text: `Your password reset code is: ${resetCode}\nThis code is valid for 15 minutes.`,
+    // }).catch(err => {
+    //   console.error("Error sending email:", err);
+    //   throw err; // Rethrow to trigger the catch block
+    // });
+    
+    // res.send("Password reset code sent to your email.");
 
     
   } catch (error) {
