@@ -378,8 +378,10 @@ const verify_reset_code = async (req, res) => {
 const reset_password = async (req, res) => {
   try {
 
-    const { userpassword, email } = req.body;
+    const { userpassword, email, person } = req.body;
 
+    if(person === 'patient'){
+      try {
        // Validate input
        if (!userpassword || !email) {
         return res.status(400).send("Email and password are required.");
@@ -397,6 +399,53 @@ const reset_password = async (req, res) => {
 
     // Respond with success
     res.status(200).send("Password reset successfully.");
+  } catch (error) {
+    console.error("Error resetting password:", error.message);
+    res.status(500).send("An error occurred while resetting the password.");
+  }
+
+    }else if(person === 'practitioner'){
+      try {
+       // Validate input
+       if (!userpassword || !email) {
+        return res.status(400).send("Email and password are required.");
+      }
+
+     // Update the database
+     const result = await pooll.query(
+      "UPDATE practitioner SET userpassword = $1 WHERE email = $2",
+      [userpassword, email]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send("User with the provided email not found.");
+    }
+
+    // Respond with success
+    res.status(200).send("Password reset successfully.");
+  } catch (error) {
+    console.error("Error resetting password:", error.message);
+    res.status(500).send("An error occurred while resetting the password.");
+  }
+
+    }
+    //    // Validate input
+    //    if (!userpassword || !email) {
+    //     return res.status(400).send("Email and password are required.");
+    //   }
+
+    //  // Update the database
+    //  const result = await pooll.query(
+    //   "UPDATE patient SET userpassword = $1 WHERE email = $2",
+    //   [userpassword, email]
+    // );
+
+    // if (result.rowCount === 0) {
+    //   return res.status(404).send("User with the provided email not found.");
+    // }
+
+    // // Respond with success
+    // res.status(200).send("Password reset successfully.");
   } catch (error) {
     console.error("Error resetting password:", error.message);
     res.status(500).send("An error occurred while resetting the password.");
