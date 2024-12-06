@@ -84,6 +84,43 @@ io.on('connection', (socket) => {
   });
 
 
+   // Listen for incoming consultation
+   socket.on('consultation message', async (data) => {
+    let consultData;
+
+    // Parse message data
+    try {
+      consultData = JSON.parse(data);
+    } catch (err) {
+      console.error('Error parsing message data:', err);
+      return; // Exit if parsing fails
+    }
+
+    const { msg, doctoremail, email } = consultData;
+
+    // Log the received message data to verify
+    console.log('Received message data:', consultData);
+
+    // Save message to PostgreSQL
+    const query = 'INSERT INTO consultation (doctoremail, email, msg) VALUES ($1, $2, $3)';
+    try {
+      await pool.query(query, [doctoremail, email, msg]);
+      console.log('Message saved to database successfully.');
+
+      // Emit the message to the intended recipient
+      if (userSockets[doctoremail]) {
+        socket.to(userSockets[doctoremail]).emit('consultation message', data); // Send to doctor
+      }
+      
+      if (userSockets[email]) {
+        socket.emit('consultation message', data); // Send back to patient (optional)
+      }
+    } catch (err) {
+      console.error('Error inserting message into database:', err);
+    }
+  });
+
+
   socket.on('reload message', async (data) => {
     let messageData;
 
