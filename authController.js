@@ -342,33 +342,7 @@ const verify_reset_code = async (req, res) => {
 
     }
 
-    // // Validate input
-    // if (!email || !resetCode) {
-    //   return res.status(400).send("Email and reset code are required.");
-    // }
 
-    // // Check if the user exists and retrieve reset code details
-    // const result = await pooll.query(
-    //   "SELECT reset_code, reset_code_expiry FROM patient WHERE email = $1",
-    //   [email]
-    // );
-
-    // if (result.rows.length === 0) {
-    //   return res.status(404).send("User not found.");
-    // }
-
-    // const { reset_code: storedHashedCode, reset_code_expiry: codeExpiry } = result.rows[0];
-
-    // // Hash the provided reset code to compare with the stored hashed code
-    // const hashedCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
-
-    // // Validate the reset code and check expiry
-    // if (storedHashedCode !== hashedCode || new Date() > new Date(codeExpiry)) {
-    //   return res.status(400).send("Invalid or expired reset code.");
-    // }
-
-    // // Reset code is valid
-    // res.send("Reset code verified. You can now reset your password.");
   } catch (error) {
     console.error("Error in verify_reset_code:", error);
     res.status(500).send("An error occurred while verifying the reset code.");
@@ -568,7 +542,7 @@ const send_email_code = async (req, res) => {
 if (person === 'patient'){
 try {
   const result = await pooll.query('SELECT * FROM patient WHERE email = $1', [email]);
-    if (result.rows.length > 0) return res.status(404).send("User not found, user already exist.");
+    if (result.rows.length > 0) return res.status(404).send("user already exist.");
 
     const user = result.rows[0];
 
@@ -590,7 +564,7 @@ try {
     // user.resetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
     // user.resetCodeExpiry = Date.now() + 15 * 60 * 1000; // Code expires in 15 minutes
     const hashedResetCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
-    const resetCodeExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+    const resetCodeExpiry = new Date(Date.now() + 1 * 60 * 1000); // 15 minutes from now
 
      // Update the database with reset code and expiry
      await pooll.query(
@@ -602,7 +576,7 @@ try {
     );
 
     setTimeout(async () => {
-      await pool.query(
+      await pooll.query(
         `DELETE FROM emailcodes WHERE email = $1 AND reset_code = $2`,
         [email, hashedResetCode]
       );
@@ -629,7 +603,7 @@ try {
 else if(person === 'practitioner'){
   try {
     const result = await pooll.query('SELECT * FROM practitioner WHERE email = $1', [email]);
-    if (result.rows.length > 0) return res.status(404).send("User not found.");
+    if (result.rows.length > 0) return res.status(404).send("user already exist.");
 
     const user = result.rows[0];
 
@@ -697,7 +671,91 @@ else if(person === 'practitioner'){
 };
 
 
+const verify_code = async (req, res) => {
+  try {
+    const { email, resetCode, person } = req.body;
+
+    if(person === 'patient'){
+      try {
+      // Validate input
+    if (!email || !resetCode) {
+      return res.status(400).send("Email and Email Verification code are required.");
+    }
+
+    // Check if the user exists and retrieve reset code details
+    const result = await pooll.query(
+      "SELECT reset_code, reset_code_expiry FROM emailcodes WHERE email = $1",
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("User not found.");
+    }
+
+    const { reset_code: storedHashedCode, reset_code_expiry: codeExpiry } = result.rows[0];
+
+    // Hash the provided reset code to compare with the stored hashed code
+    const hashedCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+
+    // Validate the reset code and check expiry
+    if (storedHashedCode !== hashedCode || new Date() > new Date(codeExpiry)) {
+      return res.status(400).send("Invalid or expired reset code.");
+    }
+
+    // Reset code is valid
+    res.send("Reset code verified. You can now reset your password.");
+  } catch (error) {
+    console.error("Error in verify_reset_code:", error);
+    res.status(500).send("An error occurred while verifying the reset code.");
+  }
+
+
+    }else if(person === 'practitioner'){
+      try {
+      // Validate input
+    if (!email || !resetCode) {
+      return res.status(400).send("Email and Email Verification code are required.");
+    }
+
+    // Check if the user exists and retrieve reset code details
+    const result = await pooll.query(
+      "SELECT reset_code, reset_code_expiry FROM emailcodes WHERE email = $1",
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("User not found.");
+    }
+
+    const { reset_code: storedHashedCode, reset_code_expiry: codeExpiry } = result.rows[0];
+
+    // Hash the provided reset code to compare with the stored hashed code
+    const hashedCode = crypto.createHash("sha256").update(String(resetCode)).digest("hex");
+
+    // Validate the reset code and check expiry
+    if (storedHashedCode !== hashedCode || new Date() > new Date(codeExpiry)) {
+      return res.status(400).send("Invalid or expired reset code.");
+    }
+
+    // Reset code is valid
+    res.send("Reset code verified. You can now reset your password.");
+  } catch (error) {
+    console.error("Error in verify_code:", error);
+    res.status(500).send("An error occurred while verifying the code.");
+  }
+
+
+    }
+
+
+  } catch (error) {
+    console.error("Error in vverify_code:", error);
+    res.status(500).send("An error occurred while verifying the code.");
+  }
+};
+
+
 // Export the Google Sign-In function
-module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime, select_datetime, send_email_code };
+module.exports = { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime, select_datetime, send_email_code, verify_code };
 
 // module.exports = { register, patient_login, practitioner_login };

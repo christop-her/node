@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime, select_datetime, send_email_code } = require('./authController');
+const { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime, select_datetime, send_email_code, verify_code } = require('./authController');
 // require('.env').config();
 
 // Initialize Express
@@ -137,6 +137,7 @@ app.post('/reset_password', reset_password);
 app.post('/submit_datetime', submit_datetime);
 app.post('/select_datetime', select_datetime);
 app.post('/send_email_code', send_email_code);
+app.post('/verify_code', verify_code);
 
 
 
