@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime, select_datetime } = require('./authController');
+const { googleSignIn, register, patient_login, practitioner_login, forgot_password, verify_reset_code, reset_password, submit_datetime, select_datetime, send_email_code } = require('./authController');
 // require('.env').config();
 
 // Initialize Express
@@ -84,42 +84,6 @@ io.on('connection', (socket) => {
   });
 
 
-   // Listen for incoming consultation
-   socket.on('consultation message', async (data) => {
-    let consultData;
-
-    // Parse message data
-    try {
-      consultData = JSON.parse(data);
-    } catch (err) {
-      console.error('Error parsing message data:', err);
-      return; // Exit if parsing fails
-    }
-
-    const { msg, doctoremail, email } = consultData;
-
-    // Log the received message data to verify
-    console.log('Received message data:', consultData);
-
-    // Save message to PostgreSQL
-    const query = 'INSERT INTO consultation (doctoremail, email, msg) VALUES ($1, $2, $3)';
-    try {
-      await pool.query(query, [doctoremail, email, msg]);
-      console.log('Message saved to database successfully.');
-
-      // Emit the message to the intended recipient
-      if (userSockets[doctoremail]) {
-        socket.to(userSockets[doctoremail]).emit('consultation message', data); // Send to doctor
-      }
-      
-      if (userSockets[email]) {
-        socket.emit('consultation message', data); // Send back to patient (optional)
-      }
-    } catch (err) {
-      console.error('Error inserting message into database:', err);
-    }
-  });
-
 
   socket.on('reload message', async (data) => {
     let messageData;
@@ -172,6 +136,8 @@ app.post('/verify_reset_code', verify_reset_code);
 app.post('/reset_password', reset_password);
 app.post('/submit_datetime', submit_datetime);
 app.post('/select_datetime', select_datetime);
+app.post('/send_email_code', send_email_code);
+
 
 
 // Start server
