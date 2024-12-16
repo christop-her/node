@@ -699,7 +699,7 @@ const verify_code = async (req, res) => {
 
     // Validate the reset code and check expiry
     if (storedHashedCode !== hashedCode || new Date() > new Date(codeExpiry)) {
-      return res.status(400).send("Invalid or expired reset code.");
+      return res.status(400).send("Invalid or expired reset code.", storedHashedCode, hashedCode , new Date(), new Date(codeExpiry));
     }
 
     // Reset code is valid
