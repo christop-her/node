@@ -699,11 +699,11 @@ const verify_code = async (req, res) => {
 
     // Validate the reset code and check expiry
     if (storedHashedCode !== hashedCode || new Date() > new Date(codeExpiry)) {
-      return res.status(400).send("Invalid or expired reset code.", storedHashedCode, hashedCode , new Date(), new Date(codeExpiry));
+      return res.status(400).send("Invalid or expired reset code.");
     }
 
     // Reset code is valid
-    res.send("Reset code verified. You can now reset your password.");
+    res.send("Reset code verified.");
   } catch (error) {
     console.error("Error in verify_reset_code:", error);
     res.status(500).send("An error occurred while verifying the reset code.");
@@ -734,11 +734,11 @@ const verify_code = async (req, res) => {
 
     // Validate the reset code and check expiry
     if (storedHashedCode !== hashedCode || new Date() > new Date(codeExpiry)) {
-      return res.status(400).send("Invalid or expired reset code.", storedHashedCode, hashedCode , new Date(), new Date(codeExpiry));
+      return res.status(400).send("Invalid or expired reset code.");
     }
 
     // Reset code is valid
-    res.send("Reset code verified. You can now reset your password.");
+    res.send("Reset code verified.");
   } catch (error) {
     console.error("Error in verify_code:", error);
     res.status(500).send("An error occurred while verifying the code.");
